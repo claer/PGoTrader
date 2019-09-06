@@ -126,7 +126,7 @@ class Main:
                 await self.switch_app()
                 continue
 
-            if "Trade expired" in text_error:
+            if "expiration" in text_error:
                 logger.info('Found Trade expired box.')
                 await self.tap(p,'error_box_ok')
                 if p.instance == 'app2':
@@ -136,37 +136,38 @@ class Main:
                 await self.tap(p,'error_box_ok')
                 if p.instance == 'app2':
                     break
-            elif "out of range" in text_error:
+            elif "est trop loin" in text_error:
                 logger.info('Found out of range box, switching apps and trying again to update location.')
                 await self.tap(p,"error_box_ok")
                 await self.tap(p,"leave_button")
                 if p.instance == 'app2':
                     break
-            elif "Unknown Trade Error" in text_error:
+            elif "inconnue" in text_error:
                 logger.info('Found Unknown Trade Error box.')
                 await self.tap(p,'error_box_ok')
                 if p.instance == 'app2':
                     break
-            elif "Waiting for" in text_wait and p.instance == 'app1':
+            elif "est en train de choisir" in text_wait and p.instance == 'app1':
                 if p.instance == 'app1':
                     logger.warning('"Waiting for" message received! Trade is good to go! Continuing...')
                     break
                 else:
                     logger.info('"Waiting for" message received! Waiting for POKEMON TO TRADE screen...')
                     count += 1
-            elif "POKEMON TO TRADE" in text_continue_trade and p.instance == 'app1':
+            elif "POKEMON" in text_continue_trade and p.instance == 'app1':
                 logger.warning('"POKEMON TO TRADE" message received! Trade is good to go! Continuing...')
                 break
-            elif "ECHANGER" in text_trade_button and p.instance == 'app1':
+            elif "ECHANGER" in text_trade_button:
                 logger.warning('Clicking TRADE button...')
                 await self.tap(p,'trade_button')
+                break
             else:
                 logger.info('Did not find TRADE button. Got: ' + text_trade_button)
                 count += 1
                 if count >= 6:
                     await self.check_animation_has_finished(p)
 
-    async def search_select_and_click_next(self, p, name_check, search_string):
+    async def search_select_and_click_next(self, p):
         CHECK_STRING = self.config[p.instance]['name_check']
         SEARCH_STRING = self.config[p.instance]['search_string']
 
@@ -174,7 +175,7 @@ class Main:
             screencap = await p.screencap()
             crop = screencap.crop(self.config[p.instance]['locations']['pokemon_to_trade_box']) #.quantize(2, kmeans=random.randint(1,4))
             text = self.tool.image_to_string(crop).replace("\n", " ")
-            if "POKEMON TO TRADE" not in text:
+            if "POKEMON" not in text:
                 logger.info('Not in pokemon to trade screen. Trying again...')
             else:
                 logger.warning('Found POKEMON TO TRADE screen, selecting pokemons...')
@@ -193,7 +194,7 @@ class Main:
             screencap = await p.screencap()
             crop = screencap.crop(self.config['locations']['next_button_box'])
             text = self.tool.image_to_string(crop).replace("\n", " ")
-            if "NEXT" not in text:
+            if "SUIVANT" not in text:
                 logger.info("Waiting for next, got" + text)
                 continue
             if not CHECK_STRING:
@@ -217,7 +218,7 @@ class Main:
             screencap = await p.screencap()
             crop = screencap.crop(self.config[p.instance]['locations']['confirm_button_box']).quantize(random.randint(2,5), kmeans=random.randint(1,4))
             text = self.tool.image_to_string(crop).replace("\n", " ")
-            if text != "CONFIRM":
+            if text != "CONFIRMER":
                 logger.info("Waiting for confirm, got " + text)
                 continue
 
@@ -284,7 +285,7 @@ class Main:
             screencap = await p.screencap()
             crop = screencap.crop(self.config[p.instance]['locations']['weight_box']).quantize(random.randint(2,5), kmeans=random.randint(1,4))
             text = self.tool.image_to_string(crop).replace("\n", " ")
-            if 'WEIGHT' in text or 'kg' in text:
+            if 'POIDS' in text or 'kg' in text:
                 logger.warning('Animation finished, closing pokemon and moving on!')
                 await self.tap(p, "close_pokemon_button")
                 break
@@ -306,7 +307,7 @@ class Main:
 
         while True:
             await self.click_trade_button(self.p_app1)
-            await self.switch_app()
+            #await self.switch_app()
 
             await self.click_trade_button(self.p_app2)
             await self.search_select_and_click_next(self.p_app2)
