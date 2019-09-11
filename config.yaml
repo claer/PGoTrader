@@ -36,6 +36,11 @@ app1:
         confirm_button_box: [30, 1080, 300, 1120]             # the CONFIRM button text in the final screen
         confirm_button: [160, 1110]                           # the CONFIRM button
 
+        cancel_trade_box: ['180','700','900','850']           # The bold text in the cancel trade dialog box
+        cancel_trade_button: ['550','1200']                   # 'YES' button on cancel trade box
+
+        going_too_fast: ['300','1400','800','1475']           # going too fast "I AM PASSENGER" text
+
         second_app_position: [820, 1300]  # where to click to switch to the second app after the app switcher is opened
 
 
@@ -75,6 +80,11 @@ app2:
         confirm_button_box: [20, 650, 210, 680]             # the CONFIRM button text in the final screen
         confirm_button: [111, 666]                           # the CONFIRM button
     
+        cancel_trade_box: ['180','700','900','850']           # The bold text in the cancel trade dialog box
+        cancel_trade_button: ['550','1200']                   # 'YES' button on cancel trade box
+
+        going_too_fast: ['300','1400','800','1475']           # going too fast "I AM PASSENGER" text
+
         second_app_position: [820, 1300]  # where to click to switch to the second app after the app switcher is opened
 
 waits:
@@ -84,4 +94,6 @@ waits:
     confirm_button: 1.5
     first_pokemon: 0.7
     app_switch: 2
-    # location: 1
+    location: 1
+    trade_anim: 18
+    trade_ends: 5

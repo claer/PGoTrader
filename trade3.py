@@ -29,7 +29,18 @@ def tap(dev,location):
     x, y = config[dev.name]['locations'][location]
     dev.shell("input tap " + str(x) + " " + str(y))
     logger.info(dev.name + ' | Tap location ' + str(location) + 'succeeded')
-    
+
+def check_known_errors(dev):
+    errors= [
+        ("error_box",["est trop loin", "expiration", "inconnue"])
+    ]
+    for err_set in errors:
+        box, msgs = err_set
+        text = scrap_screencap(dev, box)
+        for msg in msgs:
+            if text in msg:
+                raise Exception('Trade Error!')
+    return
 
 def waiting(location):
     time.sleep(config['waits'][location])
@@ -43,23 +54,9 @@ def clic_trade(dev):
             tap(dev,'trade_button')
             waiting('trade_button')
             return
-        else:
-            logger.warning(dev.name + ' | TRADE button not found, retrying ... ' + str(retry+1) + '/' +str(retries))
+        logger.warning(dev.name + ' | TRADE button not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
     raise trade_error
-
-def wait_for_trade(dev):
-    retries=2
-    for retry in range(retries):
-        logger.info("Check device {} is waiting".format(dev.name))
-        if 'pas disponible' in scrap_screencap(dev,"waiting_box"):
-            logger.info(dev.name + ' | Waitign screen found')
-            return
-        else:
-            logger.warning(dev.name + ' | Waiting screen not found, retrying ... ' str(retry+1) + '/' +str(retries))
-        time.sleep(2)
-    # do not raise error on waiting screen not found
-    #raise wait_for_trade_error
 
 def select_pokemon(dev):
     search_string = config[dev.name]['search_string']
@@ -76,8 +73,9 @@ def select_pokemon(dev):
             waiting('first_pokemon')
             tap(dev,'first_pokemon')
             return
-        else:
-            logger.warning(dev.name + ' | Waiting screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
+        elif 'pas disponible' in scrap_screencap(dev,"waiting_box"):
+            logger.warning(dev.name + ' | Waiting screen detected, please wait ... ' + str(retry+1) + '/' +str(retries))
+        logger.warning(dev.name + ' | Waiting screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
     raise wait_for_trade_error
 
@@ -91,10 +89,8 @@ def check_screen(dev):
             #if name_check not in scrap_screencap(dev,"name_at_next_screen_box"):
             #    raise namecheckfail
             tap(dev,'next_button')
-            waiting('confirm_button')
             return
-        else:
-            logger.warning(dev.name + ' | Next screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
+        logger.warning(dev.name + ' | Next screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
     raise check_screen_error
 
@@ -105,10 +101,8 @@ def confirm_screen(dev):
         if 'CONFIRMER' in scrap_screencap(dev,"confirm_button_box"):
             logger.info(dev.name + ' | Confirm screen found')
             tap(dev,'confirm_button')
-            waiting('trade_anim')
             return
-        else:
-            logger.warning(dev.name + ' | Confirm screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
+        logger.warning(dev.name + ' | Confirm screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
     raise confirm_screen_error
 
@@ -119,10 +113,8 @@ def trade_end(dev):
         if 'POIDS' in scrap_screencap(dev,"weight_box"):
             logger.info(dev.name + ' | traded pokemon screen found')
             tap(dev,'close_pokemon_button')
-            waiting('trade_ends')
             return
-        else:
-            logger.warning(dev.name + ' | Traded pokemon not found, retrying ... ' + str(retry+1) + '/' +str(retries))
+        logger.warning(dev.name + ' | Traded pokemon not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
 
 def error_cases(dev):
@@ -135,22 +127,22 @@ def do_trade(num):
         clic_trade(dev_id1)
         clic_trade(dev_id2)
 
-        wait_for_trade(dev_id1)
-        wait_for_trade(dev_id2)
-
         select_pokemon(dev_id1)
         select_pokemon(dev_id2)
 
         check_screen(dev_id1)
         check_screen(dev_id2)
+        waiting('confirm_button')
 
         confirm_screen(dev_id1)
         confirm_screen(dev_id2)
+        waiting('trade_anim')
 
         trade_end(dev_id1)
         trade_end(dev_id2)
+        waiting('trade_ends')
 
-    except e:
+    except TradeError as e:
         logger.error("ERROR: Canceling trade:" + e)
         return False
 
