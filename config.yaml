@@ -5,8 +5,8 @@ app1:
     localization: "French"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "mm"      
-    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "pp"
+    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
 
     # template OnePlus 5T
     locations:
@@ -16,14 +16,16 @@ app1:
                                                      #   (only for --single device)
 
         waiting_box: [130, 500, 920, 610]  # the "Waiting for NAME to connect" text
-        error_box: [200, 900, 900, 1020]  # the error boxes that can appear when trading
+        error_box: [200, 900, 900, 1020]   # the error boxes that can appear when trading
         error_box_ok: [550, 1150]          # the OK button at the error boxes
 
         pokemon_to_trade_box: [430, 240, 650, 290]   # the POKEMON TO TRADE text after the trade begins (at the poke selector)
-        search_button: [950, 410]                    # the search button in the pokemon selector
-        first_pokemon: [200, 680]                    # the first pokemon's position
+        search_button: [950, 410]                # the search button in the pokemon selector
+        first_pokemon: [200, 680]                # the first pokemon's position
 
-        weight_box: [100, 1230, 380, 1335]   # the weight text in the pokémon's screen after the animation (the whole thing, including the height itself)
+        weight_box: [130, 1300, 360, 1340]       # the weight word in the pokémon's screen after the animation
+        weight_box_lucky: [130, 1345, 300, 1400] # the weight word for lucky pokemon
+
         close_pokemon_button: [540, 1875]    # the X button for closing the pokémon screen
         next_button_box: [440, 1635, 640, 1675]
         next_button: [550, 1650]
@@ -31,15 +33,17 @@ app1:
 
         # confirm_button_box: [11, 1066, 278, 1169]
 
-        trade_name_box: [525, 1450, 800, 1505]                # the pokémon's name text in the final screen
-        trade_name_box_no_location: [530, 1450, 820, 1510]    # the pokémon's name text in the final screen (when it has no location info)
-        confirm_button_box: [30, 1080, 300, 1120]             # the CONFIRM button text in the final screen
-        confirm_button: [160, 1110]                           # the CONFIRM button
+        trade_name_box: [525, 1450, 800, 1505]             # the pokémon's name text in the final screen
+        trade_name_box_no_location: [530, 1450, 820, 1510] # the pokémon's name text in the final screen 
+                                                           # (when it has no location info)
 
-        cancel_trade_box: ['180','700','900','850']           # The bold text in the cancel trade dialog box
-        cancel_trade_button: ['550','1200']                   # 'YES' button on cancel trade box
+        confirm_button_box: [30, 1080, 300, 1120]          # the CONFIRM button text in the final screen
+        confirm_button: [160, 1110]                        # the CONFIRM button
 
-        going_too_fast: ['300','1400','800','1475']           # going too fast "I AM PASSENGER" text
+        cancel_trade_box: ['180','700','900','850']        # The bold text in the cancel trade dialog box
+        cancel_trade_button: ['550','1200']                # 'YES' button on cancel trade box
+
+        going_too_fast: ['300','1400','800','1475']        # going too fast "I AM PASSENGER" text
 
         second_app_position: [820, 1300]  # where to click to switch to the second app after the app switcher is opened
 
@@ -48,8 +52,8 @@ app2:
     device_id: "520021e24e6b942f"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "pp"
-    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "mm"
+    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
     localization: "French"
 
     # Template 720x1280 (Samsung J5)
@@ -67,7 +71,9 @@ app2:
         search_button: [630, 210]                    # the search button in the pokemon selector
         first_pokemon: [120, 420]                    # the first pokemon's position
     
-        weight_box: [60, 720, 230, 830]   # the weight text in the pokémon's screen after the animation (the whole thing, including the weight itself)
+        weight_box: [100, 800, 200, 830]       # the weight text in the pokémon's screen after the animation
+        weight_box_lucky: [100, 830, 200, 860] # the weight word in the lucky pokémon's screen
+
         close_pokemon_button: [360, 1180]    # the X button for closing the pokémon screen
         next_button_box: [290, 1020, 430, 1050]
         next_button: [360, 1035]
@@ -88,12 +94,12 @@ app2:
         second_app_position: [820, 1300]  # where to click to switch to the second app after the app switcher is opened
 
 waits:
-    trade_button: 2.5
+    trade_button: 3
     second_app_position: 1
     error_box_ok: 1
     confirm_button: 1.5
     first_pokemon: 0.7
     app_switch: 2
     location: 1
-    trade_anim: 18
-    trade_ends: 5
+    trade_anim: 19
+    trade_ends: 2

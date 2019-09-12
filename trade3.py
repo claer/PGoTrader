@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 import argparse
 import time 
+
 import logging
 from colorlog import ColoredFormatter
 
@@ -12,13 +13,30 @@ from pyocr import pyocr
 from pyocr import builders
 import yaml
 
-logger = logging.getLogger('trading')
-logger.setLevel(logging.INFO)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = ColoredFormatter("  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s")
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+def create_console_handler(verbose_level):
+    clog = logging.StreamHandler()
+    formatter = ColoredFormatter(
+        "%(log_color)s[%(levelname)-8s%(module)s]%(reset)s "
+        "%(white)s%(message)s",
+        reset=True,
+        log_colors={
+            'DEBUG': 'cyan',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'red',
+        })
+
+    clog.setFormatter(formatter)
+
+    if verbose_level == 0:
+        clog.setLevel(logging.WARN)
+    elif verbose_level == 1:
+        clog.setLevel(logging.INFO)
+    else:
+        clog.setLevel(logging.DEBUG)
+
+    return clog
 
 def scrap_screencap(dev, location):
     img = Image.open(BytesIO(dev.screencap()))
@@ -47,6 +65,7 @@ def waiting(location):
 
 def clic_trade(dev):
     retries=5
+    retry_interval=5
     for retry in range(retries):
         logger.info("Check and clic on trade button device {}".format(dev.name))
         if 'ECHANGER' in scrap_screencap(dev,"trade_button_label"):
@@ -54,9 +73,9 @@ def clic_trade(dev):
             tap(dev,'trade_button')
             waiting('trade_button')
             return
-        logger.warning(dev.name + ' | TRADE button not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(5)
-    raise trade_error
+        logger.warning(dev.name + ' | TRADE button not found, retrying ... ' + str(retry+1) + '/' + str(retries))
+        time.sleep(retry_interval)
+    raise Exception('Error Clic Trade {}'.format(dev.name))
 
 def select_pokemon(dev):
     search_string = config[dev.name]['search_string']
@@ -76,8 +95,8 @@ def select_pokemon(dev):
         elif 'pas disponible' in scrap_screencap(dev,"waiting_box"):
             logger.warning(dev.name + ' | Waiting screen detected, please wait ... ' + str(retry+1) + '/' +str(retries))
         logger.warning(dev.name + ' | Waiting screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(5)
-    raise wait_for_trade_error
+        time.sleep(2)
+    raise Exception('Trade Error!')
 
 def check_screen(dev):
     name_check = config[dev.name]['name_check']
@@ -92,7 +111,7 @@ def check_screen(dev):
             return
         logger.warning(dev.name + ' | Next screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
-    raise check_screen_error
+    raise Exception('Trade Error!')
 
 def confirm_screen(dev):
     retries=5
@@ -104,25 +123,30 @@ def confirm_screen(dev):
             return
         logger.warning(dev.name + ' | Confirm screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
-    raise confirm_screen_error
+    raise Exception('Trade Error!')
 
 def trade_end(dev):
     retries=5
     for retry in range(retries):
         logger.info("Check device {} trade ended".format(dev.name))
-        if 'POIDS' in scrap_screencap(dev,"weight_box"):
+        weight_text = str(scrap_screencap(dev,"weight_box"))
+        logger.debug('scap_weight: {}'.format(weight_text))
+        if 'POIDS' in weight_text:
+            logger.info(dev.name + ' | traded pokemon screen found')
+            tap(dev,'close_pokemon_button')
+            return
+        weight_text = str(scrap_screencap(dev,"weight_box_lucky"))
+        logger.debug('lucky scap_weight: {}'.format(weight_text))
+        if 'POIDS' in weight_text:
+            logger.warning('LUCKY Pokemon !!')
             logger.info(dev.name + ' | traded pokemon screen found')
             tap(dev,'close_pokemon_button')
             return
         logger.warning(dev.name + ' | Traded pokemon not found, retrying ... ' + str(retry+1) + '/' +str(retries))
         time.sleep(5)
-
-def error_cases(dev):
-    pass
+    raise Exception('Trade Error!')
 
 def do_trade(num):
-    logger.info("Trade num {} engaged".format(num))
-
     try:
         clic_trade(dev_id1)
         clic_trade(dev_id2)
@@ -142,8 +166,8 @@ def do_trade(num):
         trade_end(dev_id2)
         waiting('trade_ends')
 
-    except TradeError as e:
-        logger.error("ERROR: Canceling trade:" + e)
+    except Exception as e:
+        logger.error("ERROR: Canceling trade:" + str(e))
         return False
 
     return True
@@ -167,6 +191,12 @@ if __name__ == '__main__':
     # magic number for randomizing crop 
     i = 2
 
+    verbose_level=1
+    logger = logging.getLogger()
+    if verbose_level > 0:
+        logger.addHandler(create_console_handler(verbose_level))
+
+
     # Connecting on local adb server
     try:
         client = AdbClient(host="127.0.0.1", port=5037)
@@ -186,4 +216,5 @@ if __name__ == '__main__':
 
     # trading
     for trade in range(args.stop_after):
+        logger.warning("Trade num {}/{} engaged".format(str(trade+1),str(args.stop_after)))
         do_trade(trade)
