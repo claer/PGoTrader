@@ -97,6 +97,7 @@ waits:
     trade_button: 3
     second_app_position: 1
     error_box_ok: 1
+    next_button: 1.5
     confirm_button: 1.5
     first_pokemon: 0.7
     app_switch: 2

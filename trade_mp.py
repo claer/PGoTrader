@@ -13,6 +13,8 @@ from pyocr import pyocr
 from pyocr import builders
 import yaml
 
+from multiprocessing import Pool
+
 def create_console_handler(verbose_level):
     clog = logging.StreamHandler()
     formatter = ColoredFormatter(
@@ -80,6 +82,7 @@ def clic_trade(dev):
 def select_pokemon(dev):
     search_string = config[dev.name]['search_string']
     retries=5
+    retry_interval=2
     for retry in range(retries):
         logger.info("Check device {} Pokemon selection screen".format(dev.name))
         if 'POKEMON' in scrap_screencap(dev,"pokemon_to_trade_box"):
@@ -95,12 +98,13 @@ def select_pokemon(dev):
         elif 'pas disponible' in scrap_screencap(dev,"waiting_box"):
             logger.warning(dev.name + ' | Waiting screen detected, please wait ... ' + str(retry+1) + '/' +str(retries))
         logger.warning(dev.name + ' | Waiting screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(2)
+        time.sleep(retry_interval)
     raise Exception('Trade Error!')
 
 def check_screen(dev):
     name_check = config[dev.name]['name_check']
     retries=5
+    retry_interval=2
     for retry in range(retries):
         logger.info("Check device {} NEXT screen".format(dev.name))
         if 'SUIVANT' in scrap_screencap(dev,"next_button_box"):
@@ -110,11 +114,12 @@ def check_screen(dev):
             tap(dev,'next_button')
             return
         logger.warning(dev.name + ' | Next screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(5)
+        time.sleep(retry_interval)
     raise Exception('Trade Error!')
 
 def confirm_screen(dev):
     retries=5
+    retry_interval=2
     for retry in range(retries):
         logger.info("Check device {} CONFIRM screen".format(dev.name))
         if 'CONFIRMER' in scrap_screencap(dev,"confirm_button_box"):
@@ -122,11 +127,12 @@ def confirm_screen(dev):
             tap(dev,'confirm_button')
             return
         logger.warning(dev.name + ' | Confirm screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(5)
+        time.sleep(retry_interval)
     raise Exception('Trade Error!')
 
 def trade_end(dev):
     retries=5
+    retry_interval=2
     for retry in range(retries):
         logger.info("Check device {} trade ended".format(dev.name))
         weight_text = str(scrap_screencap(dev,"weight_box"))
@@ -143,27 +149,23 @@ def trade_end(dev):
             tap(dev,'close_pokemon_button')
             return
         logger.warning(dev.name + ' | Traded pokemon not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(5)
+        time.sleep(retry_interval)
     raise Exception('Trade Error!')
 
 def do_trade(num):
     try:
-        clic_trade(dev_id1)
-        clic_trade(dev_id2)
+        p = Pool(2)
+        p.map(clic_trade, [dev_id1,dev_id2])
+        p.map(select_pokemon, [dev_id1,dev_id2])
+        waiting('next_button')
 
-        select_pokemon(dev_id1)
-        select_pokemon(dev_id2)
-
-        check_screen(dev_id1)
-        check_screen(dev_id2)
+        p.map(check_screen, [dev_id1,dev_id2])
         waiting('confirm_button')
 
-        confirm_screen(dev_id1)
-        confirm_screen(dev_id2)
+        p.map(confirm_screen, [dev_id1,dev_id2])
         waiting('trade_anim')
 
-        trade_end(dev_id1)
-        trade_end(dev_id2)
+        p.map(trade_end, [dev_id1,dev_id2])
         waiting('trade_ends')
 
     except Exception as e:
