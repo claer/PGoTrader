@@ -4,7 +4,6 @@ import time
 
 import logging
 from colorlog import ColoredFormatter
-
 from adb.client import Client as AdbClient
 
 from PIL import Image
