@@ -6,6 +6,9 @@ This script does auto-trading between two devices.
 
 *You only need to perform this steps once*
 
+### Phone
+- Enable Developper mode and Allow USB debugging
+
 ### ADB
 - Install `adb`, make sure it's on your systems PATH, alternatively you can place adb in the same folder.
 - Install the USB drivers for your phone if needed.
@@ -46,7 +49,20 @@ WEIGHT
 - Open both apps.
 - Go to Friends, and open the friend screen (in both apps).
 - Run `python trade.py`.
-By default the script will only trade one pokemon
+- Synopsis:
+```
+usage: trade.py [-h] [--config CONFIG] [--stop-after STOP_AFTER]
+
+Pokemon GO trader
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config CONFIG       Config file location. Default "config.yaml"
+  --stop-after STOP_AFTER
+                        Stop after exchanging <number> pokemon. Default 1
+```
+
+By default the script will only trade one pokemon. If you want to trade several pokemons in a row, add the option --stop-after <number>
 
 ## Todo
 

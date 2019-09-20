@@ -5,8 +5,8 @@ app1:
     localization: "French"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "pp"
-    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "mm"
+    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
 
     # template OnePlus 5T
     locations:
@@ -33,7 +33,8 @@ app1:
 
         # confirm_button_box: [11, 1066, 278, 1169]
 
-        trade_name_box: [525, 1450, 800, 1505]             # the pokémon's name text in the final screen
+        #trade_name_box: [525, 1450, 800, 1505]             # the pokémon's name text in the final screen
+        trade_name_box: [525, 1455, 630, 1510]             # the pokémon's name text in the final screen
         trade_name_box_no_location: [530, 1450, 820, 1510] # the pokémon's name text in the final screen 
                                                            # (when it has no location info)
 
@@ -52,8 +53,8 @@ app2:
     device_id: "520021e24e6b942f"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "mm"
-    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "pp"
+    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
     localization: "French"
 
     # Template 720x1280 (Samsung J5)
