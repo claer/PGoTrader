@@ -14,6 +14,8 @@ import yaml
 
 from multiprocessing import Pool
 
+import tenacity
+
 def create_console_handler(verbose_level):
     clog = logging.StreamHandler()
     formatter = ColoredFormatter(
@@ -70,96 +72,74 @@ class TradeError(Exception):
         self.strerror = arg
         self.args = {arg}
 
+@tenacity.retry(wait=tenacity.wait_fixed(5), stop=tenacity.stop_after_attempt(5), reraise=True)
 def clic_trade(dev):
-    retries=5
-    retry_interval=5
-    for retry in range(retries):
-        logger.info("Check and clic on trade button device {}".format(dev.name))
-        img = Image.open(BytesIO(dev.screencap()))
-        if 'ECHANGER' in scrap_screencap(dev.name, img,"trade_button_label"):
-            logger.info(dev.name + ' | TRADE button found')
-            tap(dev,'trade_button')
-            waiting('trade_button')
-            return
-        logger.warning(dev.name + ' | TRADE button not found, retrying ... ' + str(retry+1) + '/' + str(retries))
-        time.sleep(retry_interval)
+    logger.info("Check and clic on trade button device {}".format(dev.name))
+    img = Image.open(BytesIO(dev.screencap()))
+    if 'ECHANGER' in scrap_screencap(dev.name, img,"trade_button_label"):
+        logger.info(dev.name + ' | TRADE button found')
+        tap(dev,'trade_button')
+        waiting('trade_button')
+        return
     raise Exception('Error Clic Trade {}'.format(dev.name))
 
+@tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def select_pokemon(dev):
     search_string = config[dev.name]['search_string']
-    retries=5
-    retry_interval=2
-    for retry in range(retries):
-        logger.info("Check device {} Pokemon selection screen".format(dev.name))
-        img = Image.open(BytesIO(dev.screencap()))
-        if 'POKEMON' in scrap_screencap(dev.name, img,"pokemon_to_trade_box"):
-            logger.info(dev.name + ' | Selection screen found')
-            tap(dev,'search_button')
-            waiting('location')
-            dev.shell("input text " + search_string)
-            # tap 2 times the pokemon, once to get of keyboard entry, 2nd to select pokemon
-            tap(dev,'first_pokemon')
-            waiting('first_pokemon')
-            tap(dev,'first_pokemon')
-            return
-        elif 'pas disponible' in scrap_screencap(dev.name, img,"waiting_box"):
-            logger.warning(dev.name + ' | Waiting screen detected, please wait ... ' + str(retry+1) + '/' +str(retries))
-        logger.warning(dev.name + ' | Waiting screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(retry_interval)
+    logger.info("Check device {} Pokemon selection screen".format(dev.name))
+    img = Image.open(BytesIO(dev.screencap()))
+    if 'POKEMON' in scrap_screencap(dev.name, img,"pokemon_to_trade_box"):
+        logger.info(dev.name + ' | Selection screen found')
+        tap(dev,'search_button')
+        waiting('location')
+        dev.shell("input text " + search_string)
+        # tap 2 times the pokemon, once to get of keyboard entry, 2nd to select pokemon
+        tap(dev,'first_pokemon')
+        waiting('first_pokemon')
+        tap(dev,'first_pokemon')
+        return
     raise Exception('Trade Error!')
 
+@tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def check_screen(dev):
     name_check = config[dev.name]['name_check']
-    retries=5
-    retry_interval=2
-    for retry in range(retries):
-        logger.info("Check device {} NEXT screen".format(dev.name))
-        img = Image.open(BytesIO(dev.screencap()))
-        if 'SUIVANT' in scrap_screencap(dev.name, img,"next_button_box"):
-            logger.info(dev.name + ' | Next screen found')
-            #if name_check not in scrap_screencap(dev.name, img,"name_at_next_screen_box"):
-            #    raise namecheckfail
-            tap(dev,'next_button')
-            return
-        logger.warning(dev.name + ' | Next screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(retry_interval)
+    logger.info("Check device {} NEXT screen".format(dev.name))
+    img = Image.open(BytesIO(dev.screencap()))
+    if 'SUIVANT' in scrap_screencap(dev.name, img,"next_button_box"):
+        logger.info(dev.name + ' | Next screen found')
+        #if name_check not in scrap_screencap(dev.name, img,"name_at_next_screen_box"):
+        #    raise namecheckfail
+        tap(dev,'next_button')
+        return
     raise Exception('Trade Error!')
 
+@tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def confirm_screen(dev):
-    retries=5
-    retry_interval=2
-    for retry in range(retries):
-        logger.info("Check device {} CONFIRM screen".format(dev.name))
-        img = Image.open(BytesIO(dev.screencap()))
-        if 'CONFIRMER' in scrap_screencap(dev.name, img,"confirm_button_box"):
-            logger.info(dev.name + ' | Confirm screen found')
-            tap(dev,'confirm_button')
-            return
-        logger.warning(dev.name + ' | Confirm screen not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(retry_interval)
+    logger.info("Check device {} CONFIRM screen".format(dev.name))
+    img = Image.open(BytesIO(dev.screencap()))
+    if 'CONFIRMER' in scrap_screencap(dev.name, img,"confirm_button_box"):
+        logger.info(dev.name + ' | Confirm screen found')
+        tap(dev,'confirm_button')
+        return
     raise Exception('Trade Error!')
 
+@tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def trade_end(dev):
-    retries=5
-    retry_interval=2
-    for retry in range(retries):
-        logger.info("Check device {} trade ended".format(dev.name))
-        img = Image.open(BytesIO(dev.screencap()))
-        weight_text = str(scrap_screencap(dev.name, img,"weight_box"))
-        logger.debug('scap_weight: {}'.format(weight_text))
-        if 'POIDS' in weight_text:
-            logger.info(dev.name + ' | traded pokemon screen found')
-            tap(dev,'close_pokemon_button')
-            return
-        weight_text = str(scrap_screencap(dev.name, img,"weight_box_lucky"))
-        logger.debug('lucky scap_weight: {}'.format(weight_text))
-        if 'POIDS' in weight_text:
-            logger.warning('LUCKY Pokemon !!')
-            logger.info(dev.name + ' | traded pokemon screen found')
-            tap(dev,'close_pokemon_button')
-            return
-        logger.warning(dev.name + ' | Traded pokemon not found, retrying ... ' + str(retry+1) + '/' +str(retries))
-        time.sleep(retry_interval)
+    logger.info("Check device {} trade ended".format(dev.name))
+    img = Image.open(BytesIO(dev.screencap()))
+    weight_text = str(scrap_screencap(dev.name, img,"weight_box"))
+    logger.debug('scap_weight: {}'.format(weight_text))
+    if 'POIDS' in weight_text:
+        logger.info(dev.name + ' | traded pokemon screen found')
+        tap(dev,'close_pokemon_button')
+        return
+    weight_text = str(scrap_screencap(dev.name, img,"weight_box_lucky"))
+    logger.debug('lucky scap_weight: {}'.format(weight_text))
+    if 'POIDS' in weight_text:
+        logger.warning('LUCKY Pokemon !!')
+        logger.info(dev.name + ' | traded pokemon screen found')
+        tap(dev,'close_pokemon_button')
+        return
     raise Exception('Trade Error!')
 
 def do_trade(num, p):

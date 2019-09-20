@@ -1,6 +1,6 @@
-colorlog==4.0.2
-Pillow==6.0.0
+colorlog>=4.0.2
+Pillow>=6.0.0
 pyocr>=0.6
 PyYAML==4.2b4
-six==1.12.0
 pure-python-adb>=0.1.7.dev0
+tenacity>=5.1.0
