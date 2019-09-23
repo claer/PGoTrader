@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 import argparse
 import time 
+import sys
 
 import logging
 from colorlog import ColoredFormatter
@@ -29,17 +30,20 @@ def create_console_handler(verbose_level):
             'ERROR': 'red',
             'CRITICAL': 'red',
         })
-
     clog.setFormatter(formatter)
-
     if verbose_level == 0:
         clog.setLevel(logging.WARN)
     elif verbose_level == 1:
         clog.setLevel(logging.INFO)
     else:
         clog.setLevel(logging.DEBUG)
-
     return clog
+
+class TradeError(Exception):
+    """Raised when an error is detected"""
+    def __init__(self, arg):
+        self.strerror = arg
+        self.args = {arg}
 
 def scrap_screencap(dev_name, img, location):
     crop = img.crop(config[dev_name]['locations'][location])
@@ -50,27 +54,20 @@ def tap(dev,location):
     dev.shell("input tap " + str(x) + " " + str(y))
     logger.info(dev.name + ' | Tap location ' + str(location) + 'succeeded')
 
-def check_known_errors(dev):
+def check_known_errors(dev_name, img):
     errors= [
         ("error_box",["est trop loin", "expiration", "inconnue"])
     ]
     for err_set in errors:
         box, msgs = err_set
-        img = Image.open(BytesIO(dev.screencap()))
-        text = scrap_screencap(dev.name, img, box)
+        text = scrap_screencap(dev_name, img, box)
         for msg in msgs:
             if text in msg:
-                raise Exception('Trade Error!')
-    return
+                return False
+    return True
 
 def waiting(location):
     time.sleep(config['waits'][location])
-
-class TradeError(Exception):
-    """Raised when an error is detected"""
-    def __init__(self, arg):
-        self.strerror = arg
-        self.args = {arg}
 
 @tenacity.retry(wait=tenacity.wait_fixed(5), stop=tenacity.stop_after_attempt(5), reraise=True)
 def clic_trade(dev):
@@ -81,7 +78,8 @@ def clic_trade(dev):
         tap(dev,'trade_button')
         waiting('trade_button')
         return
-    raise Exception('Error Clic Trade {}'.format(dev.name))
+    check_known_errors(dev.name, img)
+    raise TradeError('Error Clic Trade {}'.format(dev.name))
 
 @tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def select_pokemon(dev):
@@ -98,7 +96,7 @@ def select_pokemon(dev):
         waiting('first_pokemon')
         tap(dev,'first_pokemon')
         return
-    raise Exception('Trade Error!')
+    raise TradeError('Select Pokemon failed on {}'.format(dev.name))
 
 @tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def check_screen(dev):
@@ -111,17 +109,22 @@ def check_screen(dev):
         #    raise namecheckfail
         tap(dev,'next_button')
         return
-    raise Exception('Trade Error!')
+    raise TradeError('Select Pokemon failed on {}'.format(dev.name))
 
 @tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def confirm_screen(dev):
     logger.info("Check device {} CONFIRM screen".format(dev.name))
     img = Image.open(BytesIO(dev.screencap()))
     if 'CONFIRMER' in scrap_screencap(dev.name, img,"confirm_button_box"):
-        logger.info(dev.name + ' | Confirm screen found')
-        tap(dev,'confirm_button')
-        return
-    raise Exception('Trade Error!')
+        logger.debug(dev.name + ' | Confirm screen found, doing checks')
+        if ( '100' in scrap_screencap(dev.name, img,"confirm_button_box") and
+           config[dev.name]['locations']['search_string'] in scrap_screencap(dev.name, img,"trade_name_box")
+        ):
+            tap(dev,'confirm_button')
+            return
+        else:
+            logger.warning(dev.name + ' | Confirm checks failed')
+    raise TradeError('Confirm screen failed on {}'.format(dev.name))
 
 @tenacity.retry(wait=tenacity.wait_fixed(2), stop=tenacity.stop_after_attempt(5), reraise=True)
 def trade_end(dev):
@@ -140,7 +143,7 @@ def trade_end(dev):
         logger.info(dev.name + ' | traded pokemon screen found')
         tap(dev,'close_pokemon_button')
         return
-    raise Exception('Trade Error!')
+    raise TradeError('Trade ending failed on {}'.format(dev.name))
 
 def do_trade(num, p):
     try:
@@ -186,7 +189,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     if verbose_level > 0:
         logger.addHandler(create_console_handler(verbose_level))
-
+        logger.setLevel(logging.DEBUG)
 
     # Connecting on local adb server
     try:
@@ -209,4 +212,6 @@ if __name__ == '__main__':
     p = Pool(2)
     for trade in range(args.stop_after):
         logger.warning("Trade num {}/{} engaged".format(str(trade+1),str(args.stop_after)))
-        do_trade(trade, p)
+        if not do_trade(trade, p):
+            sys.exit(0)
+

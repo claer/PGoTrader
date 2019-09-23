@@ -5,8 +5,8 @@ app1:
     localization: "French"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "mm"
-    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "pp"
+    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
 
     # template OnePlus 5T
     locations:
@@ -37,24 +37,28 @@ app1:
         trade_name_box: [525, 1455, 630, 1510]             # the pokémon's name text in the final screen
         trade_name_box_no_location: [530, 1450, 820, 1510] # the pokémon's name text in the final screen 
                                                            # (when it has no location info)
+        trade_star: [305,650,0,0]                          # star amount for this trade
 
         confirm_button_box: [30, 1080, 300, 1120]          # the CONFIRM button text in the final screen
         confirm_button: [160, 1110]                        # the CONFIRM button
 
-        cancel_trade_box: ['180','700','900','850']        # The bold text in the cancel trade dialog box
-        cancel_trade_button: ['550','1200']                # 'YES' button on cancel trade box
+        cancel_trade_box: [180,700,900,850]        # The bold text in the cancel trade dialog box
+        cancel_trade_button: [550,1200]                # 'YES' button on cancel trade box
 
-        going_too_fast: ['300','1400','800','1475']        # going too fast "I AM PASSENGER" text
+        going_too_fast: [300,1400,800,1475]        # going too fast "I AM PASSENGER" text
 
         second_app_position: [820, 1300]  # where to click to switch to the second app after the app switcher is opened
 
+        special_exchange: [200,715,875,860]     # Do you want to do a special exchange text
+        special_exchange_yes: [550,1200]     # Yes box
+        special_exchange_no:  [550,1370]     # No  box
 
 app2:
     device_id: "520021e24e6b942f"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "pp"
-    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "mm"
+    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
     localization: "French"
 
     # Template 720x1280 (Samsung J5)
@@ -84,15 +88,20 @@ app2:
     
         trade_name_box: [350, 890, 640, 930]                # the pokémon's name text in the final screen
         trade_name_box_no_location: [350, 890, 640, 930]    # the pokémon's name text in the final screen (when it has no location info)
+        trade_star: [305, 650, 385, 685]                          # star amount for this trade
+
         confirm_button_box: [20, 650, 210, 680]             # the CONFIRM button text in the final screen
         confirm_button: [111, 666]                           # the CONFIRM button
     
-        cancel_trade_box: ['180','700','900','850']           # The bold text in the cancel trade dialog box
-        cancel_trade_button: ['550','1200']                   # 'YES' button on cancel trade box
+        cancel_trade_box: [180,700,900,850]           # The bold text in the cancel trade dialog box
+        cancel_trade_button: [550,1200]                   # 'YES' button on cancel trade box
 
-        going_too_fast: ['300','1400','800','1475']           # going too fast "I AM PASSENGER" text
+        going_too_fast: [300,1400,800,1475]           # going too fast "I AM PASSENGER" text
 
         second_app_position: [820, 1300]  # where to click to switch to the second app after the app switcher is opened
+        special_exchange: [130,385,600,475]     # Do you want to do a special exchange text
+        special_exchange_yes: [550,1200]     # Yes box
+        special_exchange_no:  [550,1370]     # No  box
 
 waits:
     trade_button: 3

@@ -38,6 +38,8 @@ def main():
         print('location needed. Exiting')
         sys.exit(0)
 
+    print('location: {}'.format(str(config[args.app]['locations'][args.loc])))
+
     print('Checking {} on {}'.format(args.loc, args.app))
     ocr_img(args.imagefile, config[args.app]['locations'][args.loc], debug=debuglvl)
 
