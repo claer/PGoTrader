@@ -118,7 +118,7 @@ def confirm_screen(dev):
     if 'CONFIRMER' in scrap_screencap(dev.name, img,"confirm_button_box"):
         logger.debug(dev.name + ' | Confirm screen found, doing checks')
         if ( '100' in scrap_screencap(dev.name, img,"confirm_button_box") and
-           config[dev.name]['locations']['search_string'] in scrap_screencap(dev.name, img,"trade_name_box")
+           config[dev.name]['search_string'] in scrap_screencap(dev.name, img,"trade_name_box")
         ):
             tap(dev,'confirm_button')
             return
