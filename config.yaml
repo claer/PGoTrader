@@ -5,8 +5,8 @@ app1:
     localization: "French"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "pp"
-    search_string: "pp"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "tt"
+    search_string: "tt"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
 
     # template OnePlus 5T
     locations:
@@ -37,7 +37,7 @@ app1:
         trade_name_box: [525, 1455, 630, 1510]             # the pokémon's name text in the final screen
         trade_name_box_no_location: [530, 1450, 820, 1510] # the pokémon's name text in the final screen 
                                                            # (when it has no location info)
-        trade_star: [305,650,0,0]                          # star amount for this trade
+        trade_star: [455,1075,565,1125]                          # star amount for this trade
 
         confirm_button_box: [30, 1080, 300, 1120]          # the CONFIRM button text in the final screen
         confirm_button: [160, 1110]                        # the CONFIRM button
@@ -57,8 +57,8 @@ app2:
     device_id: "520021e24e6b942f"
     # all your trading pokémons *must* contain this string to ensure
     # the script doesn't trade a pokémon that wasn't intended to be traded.
-    name_check: "mm"
-    search_string: "mm"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
+    name_check: "jj"
+    search_string: "jj"   # this is what gets pasted on the search box to filter which pokémons are tradeable.
     localization: "French"
 
     # Template 720x1280 (Samsung J5)
@@ -88,7 +88,8 @@ app2:
     
         trade_name_box: [350, 890, 640, 930]                # the pokémon's name text in the final screen
         trade_name_box_no_location: [350, 890, 640, 930]    # the pokémon's name text in the final screen (when it has no location info)
-        trade_star: [305, 650, 385, 685]                          # star amount for this trade
+        #trade_star: [305, 650, 385, 685]                          # star amount for this trade
+        trade_star: [300, 640, 395, 695]                          # star amount for this trade
 
         confirm_button_box: [20, 650, 210, 680]             # the CONFIRM button text in the final screen
         confirm_button: [111, 666]                           # the CONFIRM button

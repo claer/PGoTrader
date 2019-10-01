@@ -8,7 +8,6 @@ import sys
 from pyocr import pyocr
 from pyocr import builders
 
-debuglvl=None
 
 with open("../config.yaml", "r") as f:
     config = yaml.load(f)
@@ -31,8 +30,11 @@ def main():
                         help="Crop location from config file")
     parser.add_argument('--app', default='app1', type=str,
                         help='App to capture: app1|app2')
+    parser.add_argument('--debug', help='Debug level, default None', default=None)
     parser.add_argument('imagefile', help='Image file to parse')
     args = parser.parse_args()
+
+    debuglvl=args.debug
 
     if args.loc == None:
         print('location needed. Exiting')

@@ -64,9 +64,12 @@ optional arguments:
 
 By default the script will only trade one pokemon. If you want to trade several pokemons in a row, add the option --stop-after <number>
 
+## Bugs
+
+- The duplicate log bug is due to an error on pure-python-adb library. See bug https://github.com/Swind/pure-python-adb/issues/25
+
 ## Todo
 
 - Implement error case handling
 - Implement controls on traded pokemons
-- Fix the stupid duplicate log bug
 - Handle translation. Either with a proper translation system like gettext or may be just a dict.
