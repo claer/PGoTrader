@@ -5,7 +5,7 @@ import sys
 
 import logging
 from colorlog import ColoredFormatter
-from adb.client import Client as AdbClient
+from ppadb.client import Client as AdbClient
 
 from PIL import Image
 from io import BytesIO
@@ -117,8 +117,8 @@ def confirm_screen(dev):
     img = Image.open(BytesIO(dev.screencap()))
     if 'CONFIRMER' in scrap_screencap(dev.name, img,"confirm_button_box"):
         logger.debug(dev.name + ' | Confirm screen found, doing checks')
-        if ( '100' in scrap_screencap(dev.name, img,"confirm_button_box") and
-           config[dev.name]['search_string'] in scrap_screencap(dev.name, img,"trade_name_box")
+        if ( '100' in scrap_screencap(dev.name, img,"trade_star") and
+            config[dev.name]['search_string'] in scrap_screencap(dev.name, img,"trade_name_box")
         ):
             tap(dev,'confirm_button')
             return
