@@ -178,7 +178,7 @@ if __name__ == '__main__':
 
     # load params from config file
     with open(args.config, "r") as f:
-        config = yaml.load(f)
+        config = yaml.safe_load(f)
     tools = pyocr.get_available_tools()
     tool = tools[0]
 
@@ -197,6 +197,7 @@ if __name__ == '__main__':
     except:
         logger.error("Unable to connect to adb server")
         logger.error("Please check your configuration and run ``adb start-server''")
+        sys.exit(1)
          
     if len(client.devices()) < 2:
         logger.error("This program needs 2 phones connected with ADB")

@@ -19,7 +19,7 @@ app1:
         error_box: [200, 900, 900, 1020]   # the error boxes that can appear when trading
         error_box_ok: [550, 1150]          # the OK button at the error boxes
 
-        pokemon_to_trade_box: [430, 240, 650, 290]   # the POKEMON TO TRADE text after the trade begins (at the poke selector)
+        pokemon_to_trade_box: [180, 240, 410, 300]   # the POKEMON TO TRADE text after the trade begins (at the poke selector)
         search_button: [950, 410]                # the search button in the pokemon selector
         first_pokemon: [200, 680]                # the first pokemon's position
 

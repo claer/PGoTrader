@@ -1,16 +1,15 @@
 #!/usr/bin/env python3.7
-
+import sys
 import argparse
 
 import yaml
 from PIL import Image
-import sys
 from pyocr import pyocr
 from pyocr import builders
 
 
 with open("../config.yaml", "r") as f:
-    config = yaml.load(f)
+    config = yaml.safe_load(f)
 
 tools = pyocr.get_available_tools()
 tool = tools[0]
